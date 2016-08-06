@@ -15,6 +15,7 @@ namespace Steam_Shutdown
 
             int interval = 300;
             string title = "Steam Auto Shutdown - version " + version;
+            bool restart = false;
 
             Console.Title = title;
             Console.ForegroundColor = ConsoleColor.Green;
@@ -30,7 +31,7 @@ namespace Steam_Shutdown
             centerConsoleLine("This detects when Steam has finished downloading your stuff using the registry.");
             centerConsoleLine("It will shut down your computer when the download(s) are complete.");
             Console.WriteLine(); ;
-            
+
             Console.ForegroundColor = ConsoleColor.White;
 
             interval = getInterval();
@@ -53,7 +54,16 @@ namespace Steam_Shutdown
 
             Thread.Sleep(10000);
 
-            var psi = new ProcessStartInfo("shutdown", "/s /t 0");
+            ProcessStartInfo psi;
+
+            if (restart)
+            {
+                psi = new ProcessStartInfo("shutdown", "/r /t 0");
+            } else {
+                psi = new ProcessStartInfo("shutdown", "/s /t 0");
+            }
+
+            
             psi.CreateNoWindow = true;
             psi.UseShellExecute = false;
             Process.Start(psi);
@@ -117,18 +127,18 @@ namespace Steam_Shutdown
             {
                 RegistryKey local = Registry.Users;
                 local = key.OpenSubKey(sub, true);
-                try
-                {
+               try
+               {
                     object updating = local.GetValue("Updating");
                     if ((int)updating == 1)
                     {
                         return true;
                     }
-                }
-                catch (Exception)
-                {
+              }
+               catch (Exception)
+              {
                     //not all apps having Updating key ... no point having anything here
-                }
+               }
             }
             return false;
         }

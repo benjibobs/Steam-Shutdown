@@ -15,7 +15,7 @@ namespace Steam_Shutdown
 
             int interval = 300;
             string title = "Steam Auto Shutdown - version " + version;
-            bool restart = false;
+            int mode = 0;
 
             Console.Title = title;
             Console.ForegroundColor = ConsoleColor.Green;
@@ -35,13 +35,13 @@ namespace Steam_Shutdown
 
             Console.ForegroundColor = ConsoleColor.White;
 
-            interval = getIntervalOrReboot(false);
+            interval = getIntervalOrMode(false);
 
-            if (interval == -1)
+            if (interval < 0)
             {
-                restart = true;
-                interval = getIntervalOrReboot(true);
-            }
+                mode = interval;
+                interval = getIntervalOrMode(true);
+            }     
 
             RegistryKey steamBase = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\");
 
@@ -63,13 +63,18 @@ namespace Steam_Shutdown
 
             ProcessStartInfo psi;
 
-            if (restart)
+            switch (mode)
             {
-                psi = new ProcessStartInfo("shutdown", "/r /t 0");
-            } else {
-                psi = new ProcessStartInfo("shutdown", "/s /t 0");
+                case -1:
+                    psi = new ProcessStartInfo("shutdown", "/r /t 0");
+                    break;
+                case -2:
+                    psi = new ProcessStartInfo("rundll32", "powrprof.dll,SetSuspendState 0,1,0");
+                    break;
+                default:
+                    psi = new ProcessStartInfo("shutdown", "/s /t 0");
+                    break;
             }
-
             
             psi.CreateNoWindow = true;
             psi.UseShellExecute = false;
@@ -91,7 +96,7 @@ namespace Steam_Shutdown
             {
                 Console.WriteLine();
                 Console.ForegroundColor = ConsoleColor.Red;
-                centerConsoleLine("No games or updates being downloaded.");
+                centerConsoleLine("No updates or downloads detected.");
                 centerConsoleLine("Start the download/update and press ENTER to try again");
                 Console.ReadLine();
                 Console.ForegroundColor = ConsoleColor.White;
@@ -100,7 +105,7 @@ namespace Steam_Shutdown
             }
         }
 
-        static int getIntervalOrReboot(bool rebootChosen)
+        static int getIntervalOrMode(bool modeChosen)
         {
 
             Console.Write("> Interval in seconds between checks (or type reboot to reboot instead of shutting down): ");
@@ -115,7 +120,7 @@ namespace Steam_Shutdown
             if (!success || interval < 1)
             {
 
-                if (input.ToLower() == "reboot" && !rebootChosen)
+                if (input.ToLower() == "reboot" && !modeChosen)
                 {
 
                     Console.ForegroundColor = ConsoleColor.Green;
@@ -125,6 +130,14 @@ namespace Steam_Shutdown
                     Console.ForegroundColor = ConsoleColor.White;
 
                     return -1;
+                } else if (input.ToLower() == "sleep" && !modeChosen) {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine();
+                    centerConsoleLine("Sleep mode activated! You will now have to choose an actual interval.");
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    return -2;
                 }
 
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -132,7 +145,7 @@ namespace Steam_Shutdown
                 centerConsoleLine("That is not a valid interval!");
                 Console.WriteLine();
                 Console.ForegroundColor = ConsoleColor.White;
-                getIntervalOrReboot(rebootChosen);
+                getIntervalOrMode(modeChosen);
             }
 
             return interval;

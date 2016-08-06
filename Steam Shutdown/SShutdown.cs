@@ -8,7 +8,7 @@ namespace Steam_Shutdown
     class SShutdown
     {
 
-        public static string version = "1.1";
+        public static string version = "1.2";
 
         static void Main(string[] args)
         {
@@ -31,7 +31,7 @@ namespace Steam_Shutdown
 
             centerConsoleLine("This detects when Steam has finished downloading your stuff using the registry.");
             centerConsoleLine("It will shut down your computer when the download(s) are complete.");
-            Console.WriteLine(); ;
+            Console.WriteLine();
 
             Console.ForegroundColor = ConsoleColor.White;
 
@@ -108,7 +108,7 @@ namespace Steam_Shutdown
         static int getIntervalOrMode(bool modeChosen)
         {
 
-            Console.Write("> Interval in seconds between checks (or type reboot to reboot instead of shutting down): ");
+            Console.Write("> Interval in seconds between checks (type 'reboot' here to reboot, or 'sleep' to sleep): ");
             Console.ForegroundColor = ConsoleColor.Cyan;
 
             string[] inputArr = Console.ReadLine().Split(':');
@@ -130,7 +130,9 @@ namespace Steam_Shutdown
                     Console.ForegroundColor = ConsoleColor.White;
 
                     return -1;
+
                 } else if (input.ToLower() == "sleep" && !modeChosen) {
+
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine();
                     centerConsoleLine("Sleep mode activated! You will now have to choose an actual interval.");
@@ -138,6 +140,7 @@ namespace Steam_Shutdown
                     Console.ForegroundColor = ConsoleColor.White;
 
                     return -2;
+
                 }
 
                 Console.ForegroundColor = ConsoleColor.Red;

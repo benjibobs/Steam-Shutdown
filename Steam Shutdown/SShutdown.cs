@@ -76,23 +76,28 @@ namespace Steam_Shutdown
         /// <param name="args">No args</param>
         static void Main(string[] args)
         {
+            /*Top text in console*/
             Console.Title = $"Steam Auto Shutdown - v{Application.ProductVersion}";
             WriteCenterText("");
             WriteCenterText("https://github.com/benjibobs/Steam-Shutdown\n");
             WriteCenterText("Your computer will be shut down once Steam finishes downloading your games");
             WriteCenterText("--------------------------------------------------------------------------");
             WriteCenterText("");
-            
+
+            /*How many minutes we should sleep inbetween checks*/
+            var intervalMinutes = -1;
+
+            /*What we should do after steam finishes updating*/
+            int mode = -1;
+
             /*Get user interval input*/
             WriteCenterText("Enter the amount of minutes we should wait inbetween checks:");
-            var intervalMinutes = -1;
-            while ((intervalMinutes = GetUserInputAsInt(Console.ReadLine())) < 0)
+            while ((intervalMinutes = GetUserInputAsInt(Console.ReadLine())) == -1)
                 WriteCenterText("Incorrect input. Try again. (Example input: 5)");
 
             /*Get user mode input*/
             WriteCenterText("Enter mode. Shutdown = 1 | Reboot = 2 | Sleep = 3");
-            int mode = -1;
-            while ((mode = GetUserInputAsInt(Console.ReadLine())) < 0)
+            while ((mode = GetUserInputAsInt(Console.ReadLine())) == -1)
                 WriteCenterText("Incorrect input. Try again. (Example input: 1)");
 
             /*Steam apps registry key*/
@@ -108,10 +113,7 @@ namespace Steam_Shutdown
                     WriteCenterText("No games are being updated/downloaded. Press enter to try again.");
                     enterCode = Console.ReadKey().Key;
                 }
-                else
-                {
-                    break;
-                }
+                else break;
 
                 /*Quit program if users presses anything but enter*/
                 if (enterCode != ConsoleKey.Enter)
@@ -122,8 +124,7 @@ namespace Steam_Shutdown
             while (IsAnythingUpdating(steamRegBase))
             {
                 WriteCenterText($"Steam is updating something! Checking again in {intervalMinutes} minutes.");
-                //Thread.Sleep(TimeSpan.FromMinutes(intervalMinutes));
-                Thread.Sleep(4000);
+                Thread.Sleep(TimeSpan.FromMinutes(intervalMinutes));
             }
 
             WriteCenterText("Steam has finished downloading! Shutting down in 10 seconds...");

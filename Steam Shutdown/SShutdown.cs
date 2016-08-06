@@ -2,13 +2,14 @@
 using System.Threading;
 using Microsoft.Win32;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace Steam_Shutdown
 {
     class SShutdown
     {
 
-        public static string version = "1.2";
+        public static string version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
 
         static void Main(string[] args)
         {
@@ -103,7 +104,7 @@ namespace Steam_Shutdown
                 isDownloading_First(key);
                 return;
             }
-        }
+        } 
 
         static int getIntervalOrMode(bool modeChosen)
         {
@@ -156,6 +157,12 @@ namespace Steam_Shutdown
 
         }
 
+
+        /* <summary>
+           Checks if any subkey has the value Updating
+           </summary>
+           <param name="key">Steam registry key base</param>
+           <returns>Returns true if something is updating</returns> */
         static bool updateCheck(RegistryKey key)
         {
 
@@ -164,18 +171,13 @@ namespace Steam_Shutdown
             {
                 RegistryKey local = Registry.Users;
                 local = key.OpenSubKey(sub, true);
-               try
-               {
-                    object updating = local.GetValue("Updating");
-                    if ((int)updating == 1)
-                    {
-                        return true;
-                    }
-              }
-               catch (Exception)
-              {
-                    //not all apps having Updating key ... no point having anything here
-               }
+
+                object updating = local.GetValue("Updating");
+                if (updating != null && (int)updating == 1)
+                {
+                    return true;
+                }
+
             }
             return false;
         }

@@ -12,38 +12,28 @@ namespace Steam_Shutdown
 
         static void Main(string[] args)
         {
-            string title = "Steam Auto Shutdown - version " + version;
-            Console.Title = title;
 
+            int interval = 300;
+            string title = "Steam Auto Shutdown - version " + version;
+
+            Console.Title = title;
             Console.ForegroundColor = ConsoleColor.Green;
 
-            centerConsoleLine("");
+            Console.WriteLine();
             centerConsoleLine(title);
             Console.ForegroundColor = ConsoleColor.Cyan;
             centerConsoleLine("https://github.com/benjibobs/Steam-Shutdown");
-            centerConsoleLine("");
+            Console.WriteLine();
 
             Console.ForegroundColor = ConsoleColor.White;
 
             centerConsoleLine("This detects when Steam has finished downloading your stuff using the registry.");
             centerConsoleLine("It will shut down your computer when the download(s) are complete.");
-            centerConsoleLine("");
-            Console.Write("Interval in seconds between completion checks (default is 300): ");
-            Console.ForegroundColor = ConsoleColor.Cyan;
-
-            string[] input = Console.ReadLine().Split(' ');
-
-            int interval = 0;
-            bool success = Int32.TryParse(input[(input.Length - 1)], out interval);
-
-            if (!success)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                centerConsoleLine("That is not a valid number!");
-                return;
-            }
-
+            Console.WriteLine(); ;
+            
             Console.ForegroundColor = ConsoleColor.White;
+
+            interval = getInterval();
 
             RegistryKey steamBase = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\");
 
@@ -91,6 +81,32 @@ namespace Steam_Shutdown
                 isDownloading_First(key);
                 return;
             }
+        }
+
+        static int getInterval()
+        {
+
+            Console.Write("Interval in seconds between checks (recommended is 300): ");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+
+            string[] input = Console.ReadLine().Split(':');
+
+            int interval;
+            bool success = Int32.TryParse(input[(input.Length - 1)].Trim(' '), out interval);
+
+            if (!success)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine();
+                centerConsoleLine("That is not a valid number!");
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.White;
+                getInterval();
+            }
+
+            return interval;
+
+
         }
 
         static bool updateCheck(RegistryKey key)

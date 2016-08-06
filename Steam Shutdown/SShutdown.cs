@@ -8,7 +8,7 @@ namespace Steam_Shutdown
     class SShutdown
     {
 
-        public static string version = "1.0";
+        public static string version = "1.1";
 
         static void Main(string[] args)
         {

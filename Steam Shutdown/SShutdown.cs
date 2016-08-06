@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Steam_Shutdown
 {
-    class Program
+    class SShutdown
     {
         /// <summary>
         /// Checks if any subkey has the value Updating
@@ -88,11 +88,23 @@ namespace Steam_Shutdown
             var steamRegBase = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\");
 
             /*Ensure any updates are happening at all*/
-            if (!IsAnythingUpdating(steamRegBase))
+            /*We'll repeat this check while user presses Enter key*/
+            var enterCode = ConsoleKey.Enter;
+            while (enterCode == ConsoleKey.Enter)
             {
-                WriteCenterText("No games are being updated/downloaded. Exiting ...");
-                Thread.Sleep(TimeSpan.FromSeconds(2));
-                return;
+                if (!IsAnythingUpdating(steamRegBase))
+                {
+                    WriteCenterText("No games are being updated/downloaded. Press enter to try again.");
+                    enterCode = Console.ReadKey().Key;
+                }
+                else
+                {
+                    break;
+                }
+
+                /*Quit program if users presses anything but enter*/
+                if (enterCode != ConsoleKey.Enter)
+                    return;
             }
 
             /*Keep loop alive as long as something is updating/downloading*/

@@ -19,6 +19,7 @@ namespace Steam_Shutdown
 
             Console.Title = title;
             Console.ForegroundColor = ConsoleColor.Green;
+            Console.WindowWidth += 50;
 
             Console.WriteLine();
             centerConsoleLine(title);
@@ -34,7 +35,13 @@ namespace Steam_Shutdown
 
             Console.ForegroundColor = ConsoleColor.White;
 
-            interval = getInterval();
+            interval = getIntervalOrReboot(false);
+
+            if (interval == -1)
+            {
+                restart = true;
+                interval = getIntervalOrReboot(true);
+            }
 
             RegistryKey steamBase = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\");
 
@@ -93,25 +100,39 @@ namespace Steam_Shutdown
             }
         }
 
-        static int getInterval()
+        static int getIntervalOrReboot(bool rebootChosen)
         {
 
-            Console.Write("Interval in seconds between checks (recommended is 300): ");
+            Console.Write("> Interval in seconds between checks (or type reboot to reboot instead of shutting down): ");
             Console.ForegroundColor = ConsoleColor.Cyan;
 
-            string[] input = Console.ReadLine().Split(':');
+            string[] inputArr = Console.ReadLine().Split(':');
 
             int interval;
-            bool success = Int32.TryParse(input[(input.Length - 1)].Trim(' '), out interval);
+            string input = inputArr[(inputArr.Length - 1)].Trim(' ');
+            bool success = Int32.TryParse(inputArr[(inputArr.Length - 1)].Trim(' '), out interval);
 
-            if (!success)
+            if (!success || interval < 1)
             {
+
+                if (input.ToLower() == "reboot" && !rebootChosen)
+                {
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine();
+                    centerConsoleLine("Reboot mode activated! You will now have to choose an actual interval.");
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    return -1;
+                }
+
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine();
-                centerConsoleLine("That is not a valid number!");
+                centerConsoleLine("That is not a valid interval!");
                 Console.WriteLine();
                 Console.ForegroundColor = ConsoleColor.White;
-                getInterval();
+                getIntervalOrReboot(rebootChosen);
             }
 
             return interval;

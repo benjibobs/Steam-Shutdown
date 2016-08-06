@@ -55,6 +55,21 @@ namespace Steam_Shutdown
 
 
         /// <summary>
+        /// Parses user input as int
+        /// </summary>
+        /// <param name="str">String to parse</param>
+        /// <returns>Returns -1 if failed</returns>
+        private static int GetUserInputAsInt(string str)
+        {
+            int value = -1;
+            if (IsNumber(str))
+                int.TryParse(str, out value);
+
+            return value;
+        }
+
+
+        /// <summary>
         /// Entry point
         /// Checks if any apps are being updated
         /// </summary>
@@ -67,22 +82,18 @@ namespace Steam_Shutdown
             WriteCenterText("Your computer will be shut down once Steam finishes downloading your games");
             WriteCenterText("--------------------------------------------------------------------------");
             WriteCenterText("");
-
-            /*User interval input*/
+            
+            /*Get user interval input*/
             WriteCenterText("Enter the amount of minutes we should wait inbetween checks:");
-
-            var input = string.Empty;
-            while (!IsNumber((input = Console.ReadLine())))
+            var intervalMinutes = -1;
+            while ((intervalMinutes = GetUserInputAsInt(Console.ReadLine())) < 0)
                 WriteCenterText("Incorrect input. Try again. (Example input: 5)");
 
-            /*Parse user input*/
-            var intervalMinutes = 0;
-            if (!int.TryParse(input, out intervalMinutes))
-            {
-                WriteCenterText("Could not parse interval input. Please type in only numbers. Exiting...");
-                Thread.Sleep(TimeSpan.FromSeconds(2));
-                return;
-            }
+            /*Get user mode input*/
+            WriteCenterText("Enter mode. Shutdown = 1 | Reboot = 2 | Sleep = 3");
+            int mode = -1;
+            while ((mode = GetUserInputAsInt(Console.ReadLine())) < 0)
+                WriteCenterText("Incorrect input. Try again. (Example input: 1)");
 
             /*Steam apps registry key*/
             var steamRegBase = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\");
@@ -111,20 +122,41 @@ namespace Steam_Shutdown
             while (IsAnythingUpdating(steamRegBase))
             {
                 WriteCenterText($"Steam is updating something! Checking again in {intervalMinutes} minutes.");
-                Thread.Sleep(TimeSpan.FromMinutes(intervalMinutes));
+                //Thread.Sleep(TimeSpan.FromMinutes(intervalMinutes));
+                Thread.Sleep(4000);
             }
 
             WriteCenterText("Steam has finished downloading! Shutting down in 10 seconds...");
             Thread.Sleep(TimeSpan.FromSeconds(10));
 
-            /*Initialize a shutdown*/
-            Process.Start(new ProcessStartInfo()
+            /*Set up process start info*/
+            var procInfo = new ProcessStartInfo()
             {
-                FileName = "shutdown",
-                Arguments = "/s /t 0",
                 CreateNoWindow = true,
                 UseShellExecute = false
-            });
+            };
+            
+            /*Switch between modes*/
+            switch (mode)
+            {
+                case 1:
+                    /*Shutdown*/
+                    procInfo.FileName = "shutdown";
+                    procInfo.Arguments = "/s /t 0";
+                    break;
+                case 2:
+                    /*Restart*/
+                    procInfo.FileName = "shutdown";
+                    procInfo.Arguments = "/r /t 0";
+                    break;
+                case 3:
+                    /*Sleep*/
+                    procInfo.FileName = "rundll32";
+                    procInfo.Arguments = "powrprof.dll,SetSuspendState 0,1,0";
+                    break;
+            }
+            
+            Process.Start(procInfo);
         }
     }
 }

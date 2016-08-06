@@ -3,6 +3,7 @@ using System.Threading;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace Steam_Shutdown
 {
@@ -42,6 +43,18 @@ namespace Steam_Shutdown
 
 
         /// <summary>
+        /// Checks if a string consists of only minutes
+        /// </summary>
+        /// <param name="str">string to check</param>
+        /// <returns>Returns true if only numbers</returns>
+        private static bool IsNumber(string str)
+        {
+            var reg = new Regex("^[0-9]*$");
+            return reg.IsMatch(str);
+        }
+
+
+        /// <summary>
         /// Entry point
         /// Checks if any apps are being updated
         /// </summary>
@@ -54,6 +67,22 @@ namespace Steam_Shutdown
             WriteCenterText("Your computer will be shut down once Steam finishes downloading your games");
             WriteCenterText("--------------------------------------------------------------------------");
             WriteCenterText("");
+
+            /*User interval input*/
+            WriteCenterText("Enter the amount of minutes we should wait inbetween checks:");
+
+            var input = string.Empty;
+            while (!IsNumber((input = Console.ReadLine())))
+                WriteCenterText("Incorrect input. Try again. (Example input: 5)");
+
+            /*Parse user input*/
+            var intervalMinutes = 0;
+            if (!int.TryParse(input, out intervalMinutes))
+            {
+                WriteCenterText("Could not parse interval input. Please type in only numbers. Exiting...");
+                Thread.Sleep(TimeSpan.FromSeconds(2));
+                return;
+            }
 
             /*Steam apps registry key*/
             var steamRegBase = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\");
@@ -69,8 +98,8 @@ namespace Steam_Shutdown
             /*Keep loop alive as long as something is updating/downloading*/
             while (IsAnythingUpdating(steamRegBase))
             {
-                WriteCenterText("Steam is updating something! Checking again in a minute.");
-                Thread.Sleep(TimeSpan.FromMinutes(1));
+                WriteCenterText($"Steam is updating something! Checking again in {intervalMinutes} minutes.");
+                Thread.Sleep(TimeSpan.FromMinutes(intervalMinutes));
             }
 
             WriteCenterText("Steam has finished downloading! Shutting down in 10 seconds...");

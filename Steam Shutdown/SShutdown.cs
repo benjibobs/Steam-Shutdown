@@ -12,9 +12,10 @@ namespace Steam_Shutdown
         static void Main(string[] args)
         {
             string version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
-            int interval = -1;
+            int interval = 0;
             string title = "Steam Auto Shutdown - version " + version;
             int mode = 0;
+            string[] customCmd = {"", "" };
 
             Console.Title = title;
             Console.ForegroundColor = ConsoleColor.Green;
@@ -32,8 +33,23 @@ namespace Steam_Shutdown
 
             while (interval < 1) //mode has been chosen
             {
-                mode = interval;
                 interval = getIntervalOrMode();
+                mode = interval;
+            }
+
+            if (mode == -4)
+            {
+                while (customCmd[0] == "")
+                {
+                    Console.Write("\n> Please enter your custom command (without arguments): ");
+                    customCmd[0] = Console.ReadLine().Split(':')[0].Trim();
+                }
+
+                Console.Write("\n> Please enter your command's arguments (can be empty): ");
+                customCmd[1] = Console.ReadLine().Split(':')[0].Trim();
+
+                Console.WriteLine("\n> '" + customCmd[0] + " " + customCmd[1] + "' will be run");
+                
             }
 
             RegistryKey steamBase = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\");
@@ -42,14 +58,13 @@ namespace Steam_Shutdown
 
             while (updateCheck(steamBase))
             {
-
                 centerConsoleLine("\n> Steam is downloading something! Sleeping for " + interval + " seconds...");
                 Thread.Sleep(interval * 1000);
             }
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine();
-            centerConsoleLine("Steam has finished downloading! Shutting down in 10 seconds...");
+            centerConsoleLine("Steam has finished downloading! Waiting 10 seconds...");
 
             Thread.Sleep(10000);
 
@@ -65,6 +80,9 @@ namespace Steam_Shutdown
                     break;
                 case -3:
                     psi = new ProcessStartInfo("rundll32", "powrprof.dll,SetSuspendState");
+                    break;
+                case -4:
+                    psi = new ProcessStartInfo(customCmd[0], customCmd[1]);
                     break;
                 default:
                     psi = new ProcessStartInfo("shutdown", "/s /t 0");
@@ -120,7 +138,7 @@ namespace Steam_Shutdown
 
             string[] inputArr = Console.ReadLine().Split(':');
 
-            int interval = 300;
+            int interval = 0;
             string input = inputArr[(inputArr.Length - 1)].Trim(' ');
             bool success = Int32.TryParse(inputArr[(inputArr.Length - 1)].Trim(' '), out interval);
 
@@ -138,6 +156,9 @@ namespace Steam_Shutdown
                     case "hibernate":
                         centerConsoleLine("\n> Hibernate mode activated! You will now have to choose an actual interval.\n");
                         return -3;
+                    case "custom":
+                        centerConsoleLine("\n> Custom mode activated! You will now have to choose a command.\n");
+                        return -4;
                     case "shutdown":
                         centerConsoleLine("\n> Shutdown mode activated! You will now have to choose an actual interval.\n");
                         return 0;

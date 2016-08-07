@@ -145,25 +145,6 @@ namespace Steam_Shutdown
                         break;
                 }
 
-                if (input.ToLower() == "reboot")
-                {
-
-                    
-
-                }
-                else if (input.ToLower() == "sleep")
-                {
-
-                    
-
-                }
-                else if (input.ToLower() == "hibernate")
-                {
-
-                    
-
-                }
-
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine();
                 centerConsoleLine("That is not a valid interval!");

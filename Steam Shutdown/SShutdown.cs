@@ -12,7 +12,7 @@ namespace Steam_Shutdown
         static void Main(string[] args)
         {
             string version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
-            int interval = 300;
+            int interval = -1;
             string title = "Steam Auto Shutdown - version " + version;
             int mode = 0;
 
@@ -29,13 +29,11 @@ namespace Steam_Shutdown
             centerConsoleLine("This detects when Steam has finished downloading your stuff using the registry.");
             centerConsoleLine("It will shut down your computer when the download(s) are complete.\n");
 
-            interval = getIntervalOrMode(false);
-
-            if (interval < 0) //mode has been chosen
+            while (interval < 1) //mode has been chosen
             {
                 mode = interval;
-                interval = getIntervalOrMode(true);
-            }     
+                interval = getIntervalOrMode();
+            }
 
             RegistryKey steamBase = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\");
 
@@ -114,42 +112,54 @@ namespace Steam_Shutdown
         ///   </summary>
         ///   <param name="modeChosen">Has a mode been previously chosen</param>
         ///   <returns>Returns interval or corresponding mode number</returns>
-        static int getIntervalOrMode(bool modeChosen)
+        static int getIntervalOrMode()
         {
 
             Console.Write("> Interval in seconds between checks (or type 'reboot', 'sleep', or 'hibernate' to change modes): ");
 
             string[] inputArr = Console.ReadLine().Split(':');
 
-            int interval;
+            int interval = 300;
             string input = inputArr[(inputArr.Length - 1)].Trim(' ');
             bool success = Int32.TryParse(inputArr[(inputArr.Length - 1)].Trim(' '), out interval);
 
             if (!success || interval < 1)
             {
 
-                if (input.ToLower() == "reboot" && !modeChosen)
+                switch (input.ToLower())
                 {
-
-                    centerConsoleLine("\n> Reboot mode activated! You will now have to choose an actual interval.\n");
-
-                    return -1;
-
+                    case "reboot":
+                        centerConsoleLine("\n> Reboot mode activated! You will now have to choose an actual interval.\n");
+                        return -1;
+                    case "sleep":
+                        centerConsoleLine("\n> Sleep mode activated! You will now have to choose an actual interval.\n");
+                        return -2;
+                    case "hibernate":
+                        centerConsoleLine("\n> Hibernate mode activated! You will now have to choose an actual interval.\n");
+                        return -3;
+                    case "shutdown":
+                        centerConsoleLine("\n> Hibernate mode activated! You will now have to choose an actual interval.\n");
+                        return 0;
+                    default:
+                        break;
                 }
-                else if (input.ToLower() == "sleep" && !modeChosen)
+
+                if (input.ToLower() == "reboot")
                 {
 
-                    centerConsoleLine("\n> Sleep mode activated! You will now have to choose an actual interval.\n");
-
-                    return -2;
-
-                }
-                else if (input.ToLower() == "hibernate" && !modeChosen)
-                {
                     
-                    centerConsoleLine("\n> Hibernate mode activated! You will now have to choose an actual interval.\n");
 
-                    return -3;
+                }
+                else if (input.ToLower() == "sleep")
+                {
+
+                    
+
+                }
+                else if (input.ToLower() == "hibernate")
+                {
+
+                    
 
                 }
 
@@ -158,7 +168,8 @@ namespace Steam_Shutdown
                 centerConsoleLine("That is not a valid interval!");
                 Console.WriteLine();
                 Console.ForegroundColor = ConsoleColor.White;
-                getIntervalOrMode(modeChosen);
+                getIntervalOrMode();
+
             }
 
             return interval;

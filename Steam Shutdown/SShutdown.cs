@@ -20,17 +20,14 @@ namespace Steam_Shutdown
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WindowWidth += 30;
 
-            Console.WriteLine();
-            centerConsoleLine(title);
+            centerConsoleLine("\n" + title);
             Console.ForegroundColor = ConsoleColor.Cyan;
-            centerConsoleLine("https://github.com/benjibobs/Steam-Shutdown");
-            Console.WriteLine();
+            centerConsoleLine("https://github.com/benjibobs/Steam-Shutdown\n");
 
             Console.ForegroundColor = ConsoleColor.White;
 
             centerConsoleLine("This detects when Steam has finished downloading your stuff using the registry.");
-            centerConsoleLine("It will shut down your computer when the download(s) are complete.");
-            Console.WriteLine();
+            centerConsoleLine("It will shut down your computer when the download(s) are complete.\n");
 
             interval = getIntervalOrMode(false);
 
@@ -44,17 +41,18 @@ namespace Steam_Shutdown
 
             isDownloading_First(steamBase); //check if any app is actually being updated
 
+            int i = 0;
+
             while (updateCheck(steamBase))
             {
-                Console.WriteLine("");
-                centerConsoleLine("Steam is downloading something! Sleeping for " + interval + " seconds...");
-                Thread.Sleep(interval * 1000);
 
+                centerConsoleLine("\n> Steam is downloading something! Sleeping for " + interval + " seconds...");
+                i++;
+                Thread.Sleep(interval * 1000);
             }
 
-            Console.WriteLine("");
             Console.ForegroundColor = ConsoleColor.Green;
-            centerConsoleLine("Steam has finished downloading! Shutting down in 10 seconds...");
+            Console.WriteLine("\n> Steam has finished downloading! Shutting down in 10 seconds...");
 
             Thread.Sleep(10000);
 
@@ -98,7 +96,9 @@ namespace Steam_Shutdown
                 centerConsoleLine("Start the download/update and press ENTER to try again");
                 Console.ReadLine();
                 Console.ForegroundColor = ConsoleColor.White;
-                isDownloading_First(key);
+
+                isDownloading_First(key); //NOTE: Temporary workaround http://i.imgur.com/3eDjSGm.png
+
                 return;
             }
         } 
@@ -120,26 +120,23 @@ namespace Steam_Shutdown
                 if (input.ToLower() == "reboot" && !modeChosen)
                 {
 
-                    Console.WriteLine();
-                    centerConsoleLine("Reboot mode activated! You will now have to choose an actual interval.");
-                    Console.WriteLine();
+                    centerConsoleLine("\n> Reboot mode activated! You will now have to choose an actual interval.\n");
 
                     return -1;
 
-                } else if (input.ToLower() == "sleep" && !modeChosen) {
+                }
+                else if (input.ToLower() == "sleep" && !modeChosen)
+                {
 
-                    Console.WriteLine();
-                    centerConsoleLine("Sleep mode activated! You will now have to choose an actual interval.");
-                    Console.WriteLine();
+                    centerConsoleLine("\n> Sleep mode activated! You will now have to choose an actual interval.\n");
 
                     return -2;
 
-                } else if (input.ToLower() == "hibernate" && !modeChosen)
+                }
+                else if (input.ToLower() == "hibernate" && !modeChosen)
                 {
                     
-                    Console.WriteLine();
-                    centerConsoleLine("Hibernate mode activated! You will now have to choose an actual interval.");
-                    Console.WriteLine();
+                    centerConsoleLine("\n> Hibernate mode activated! You will now have to choose an actual interval.\n");
 
                     return -3;
 
@@ -179,6 +176,7 @@ namespace Steam_Shutdown
                 }
 
             }
+
             return false;
         }
 

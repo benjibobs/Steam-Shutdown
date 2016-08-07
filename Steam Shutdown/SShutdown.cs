@@ -34,7 +34,11 @@ namespace Steam_Shutdown
             while (interval < 1) //mode has been chosen
             {
                 interval = getIntervalOrMode();
-                mode = interval;
+                   
+                if(interval < 1)
+                {
+                    mode = interval;
+                }
             }
 
             if (mode == -4)
@@ -171,7 +175,7 @@ namespace Steam_Shutdown
                 centerConsoleLine("That is not a valid interval!");
                 Console.WriteLine();
                 Console.ForegroundColor = ConsoleColor.White;
-                getIntervalOrMode();
+                return getIntervalOrMode();
 
             }
 

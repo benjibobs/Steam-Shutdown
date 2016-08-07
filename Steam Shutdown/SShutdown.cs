@@ -31,7 +31,7 @@ namespace Steam_Shutdown
 
             interval = getIntervalOrMode(false);
 
-            if (interval < 0)
+            if (interval < 0) //mode has been chosen
             {
                 mode = interval;
                 interval = getIntervalOrMode(true);
@@ -41,18 +41,16 @@ namespace Steam_Shutdown
 
             isDownloading_First(steamBase); //check if any app is actually being updated
 
-            int i = 0;
-
             while (updateCheck(steamBase))
             {
 
                 centerConsoleLine("\n> Steam is downloading something! Sleeping for " + interval + " seconds...");
-                i++;
                 Thread.Sleep(interval * 1000);
             }
 
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("\n> Steam has finished downloading! Shutting down in 10 seconds...");
+            Console.WriteLine();
+            centerConsoleLine("Steam has finished downloading! Shutting down in 10 seconds...");
 
             Thread.Sleep(10000);
 
@@ -64,7 +62,7 @@ namespace Steam_Shutdown
                     psi = new ProcessStartInfo("shutdown", "/r /t 0");
                     break;
                 case -2:
-                    psi = new ProcessStartInfo("rundll32", "powrprof.dll,SetSuspendState 0,1,0");
+                    psi = new ProcessStartInfo("rundll32", "powrprof.dll,SetSuspendState 0,1,0"); //may not work on some systems (sends into a kind of hibernation)
                     break;
                 case -3:
                     psi = new ProcessStartInfo("rundll32", "powrprof.dll,SetSuspendState");
@@ -74,18 +72,26 @@ namespace Steam_Shutdown
                     break;
             }
             
-            psi.CreateNoWindow = true;
+            psi.CreateNoWindow = true; //prevent popup
             psi.UseShellExecute = false;
             Process.Start(psi);
 
         }
 
+        /// <summary>
+        ///   Prints a centered message to Console
+        ///   </summary>
+        ///   <param name="text">Text to print</param>
         static void centerConsoleLine(string text)
         {
             Console.SetCursorPosition((Console.WindowWidth - text.Length) / 2, Console.CursorTop);
             Console.WriteLine(text);
         }
 
+        /// <summary>
+        ///   RecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursion
+        ///   </summary>
+        ///   <param name="key">Steam registry base key</param>
         static void isDownloading_First(RegistryKey key)
         {
             if (!updateCheck(key))
@@ -101,8 +107,13 @@ namespace Steam_Shutdown
 
                 return;
             }
-        } 
+        }
 
+        /// <summary>
+        ///   Gets interval or mode from user input
+        ///   </summary>
+        ///   <param name="modeChosen">Has a mode been previously chosen</param>
+        ///   <returns>Returns interval or corresponding mode number</returns>
         static int getIntervalOrMode(bool modeChosen)
         {
 

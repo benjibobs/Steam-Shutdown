@@ -20,7 +20,8 @@ namespace Steam_Shutdown
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WindowWidth += 30;
 
-            centerConsoleLine("\n" + title);
+            Console.WriteLine();
+            centerConsoleLine(title);
             Console.ForegroundColor = ConsoleColor.Cyan;
             centerConsoleLine("https://github.com/benjibobs/Steam-Shutdown\n");
 

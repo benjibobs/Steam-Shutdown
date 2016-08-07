@@ -112,7 +112,7 @@ namespace Steam_Shutdown
         static int getIntervalOrMode(bool modeChosen)
         {
 
-            Console.Write("> Interval in seconds between checks (type 'reboot' here to reboot, or 'sleep' to sleep): ");
+            Console.Write("> Interval in seconds between checks (or type 'reboot', 'sleep', or 'hibernate' to change modes): ");
             Console.ForegroundColor = ConsoleColor.Cyan;
 
             string[] inputArr = Console.ReadLine().Split(':');

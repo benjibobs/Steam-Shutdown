@@ -138,7 +138,7 @@ namespace Steam_Shutdown
                         centerConsoleLine("\n> Hibernate mode activated! You will now have to choose an actual interval.\n");
                         return -3;
                     case "shutdown":
-                        centerConsoleLine("\n> Hibernate mode activated! You will now have to choose an actual interval.\n");
+                        centerConsoleLine("\n> Shutdown mode activated! You will now have to choose an actual interval.\n");
                         return 0;
                     default:
                         break;

@@ -3,6 +3,7 @@ using System.Threading;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Steam_Shutdown
 {
@@ -46,12 +47,11 @@ namespace Steam_Shutdown
                 while (customCmd[0] == "")
                 {
                     Console.Write("\n> Please enter your custom command (without arguments): ");
-                    customCmd[0] = Console.ReadLine().Split(':')[0].Trim();
+                    customCmd[0] = Regex.Split(Console.ReadLine(), "(without arguments):")[0];
                 }
 
                 Console.Write("\n> Please enter your command's arguments (can be empty): ");
-                customCmd[1] = Console.ReadLine().Split(':')[0].Trim();
-
+                customCmd[1] = Regex.Split(Console.ReadLine(), "(can be empty):")[0];
                 Console.WriteLine("\n> '" + customCmd[0] + " " + customCmd[1] + "' will be run");
                 
             }
@@ -138,7 +138,7 @@ namespace Steam_Shutdown
         static int getIntervalOrMode()
         {
 
-            Console.Write("> Interval in seconds between checks (or type 'reboot', 'sleep', or 'hibernate' to change modes): ");
+            Console.Write("> Interval in seconds between checks (or type 'reboot', 'sleep', 'hibernate', or 'custom'): ");
 
             string[] inputArr = Console.ReadLine().Split(':');
 

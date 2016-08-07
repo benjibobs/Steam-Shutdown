@@ -32,17 +32,6 @@ namespace Steam_Shutdown
 
 
         /// <summary>
-        /// Outputs text to the console centered
-        /// </summary>
-        /// <param name="text">String to output</param>
-        private static void WriteCenterText(string text)
-        {
-            Console.Write(new string(' ', (Console.WindowWidth - text.Length) / 2));
-            Console.WriteLine(text);
-        }
-
-
-        /// <summary>
         /// Checks if a string consists of only minutes
         /// </summary>
         /// <param name="str">string to check</param>
@@ -79,27 +68,21 @@ namespace Steam_Shutdown
             /*Top text in console*/
             string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
             Console.Title = $"Steam Auto Shutdown - v{productVersion}";
-            WriteCenterText("");
-            WriteCenterText("https://github.com/benjibobs/Steam-Shutdown\n");
-            WriteCenterText("Your computer will be shut down once Steam finishes downloading your games");
-            WriteCenterText("--------------------------------------------------------------------------");
-            WriteCenterText("");
-
-            /*How many minutes we should sleep inbetween checks*/
-            var intervalMinutes = -1;
-
-            /*What we should do after steam finishes updating*/
-            int mode = -1;
+            Console.WriteLine("\nhttps://github.com/benjibobs/Steam-Shutdown\n");
+            Console.WriteLine("Your computer will be shut down once Steam finishes downloading your games");
+            Console.WriteLine("--------------------------------------------------------------------------\n");
+            
+            int intervalMinutes, mode;
 
             /*Get user interval input*/
-            WriteCenterText("Enter the amount of minutes we should wait inbetween checks:");
+            Console.WriteLine("Enter the amount of minutes we should wait inbetween checks:");
             while ((intervalMinutes = GetUserInputAsInt(Console.ReadLine())) == -1)
-                WriteCenterText("Incorrect input. Try again. (Example input: 5)");
+                Console.WriteLine("Incorrect input. Try again. (Example input: 5)");
 
             /*Get user mode input*/
-            WriteCenterText("Enter mode. Shutdown = 1 | Reboot = 2 | Sleep = 3");
+            Console.WriteLine("Enter mode. Shutdown = 1 | Reboot = 2 | Sleep = 3");
             while ((mode = GetUserInputAsInt(Console.ReadLine())) < 1 || mode > 3)
-                WriteCenterText("Incorrect input. Try again. (Example input: 1)");
+                Console.WriteLine("Incorrect input. Try again. (Example input: 1)");
 
             /*Steam apps registry key*/
             var steamRegBase = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\");
@@ -111,7 +94,7 @@ namespace Steam_Shutdown
             {
                 if (!IsAnythingUpdating(steamRegBase))
                 {
-                    WriteCenterText("No games are being updated/downloaded. Press enter to try again.");
+                    Console.WriteLine("No games are being updated/downloaded. Press enter to try again.");
                     enterCode = Console.ReadKey().Key;
                 }
                 else break;
@@ -124,11 +107,11 @@ namespace Steam_Shutdown
             /*Keep loop alive as long as something is updating/downloading*/
             while (IsAnythingUpdating(steamRegBase))
             {
-                WriteCenterText($"Steam is updating something! Checking again in {intervalMinutes} minutes.");
+                Console.WriteLine($"Steam is updating something! Checking again in {intervalMinutes} minutes.");
                 Thread.Sleep(TimeSpan.FromMinutes(intervalMinutes));
             }
 
-            WriteCenterText("Steam has finished downloading! Shutting down in 10 seconds...");
+            Console.WriteLine("Steam has finished downloading! Shutting down in 10 seconds...");
             Thread.Sleep(TimeSpan.FromSeconds(10));
 
             /*Set up process start info*/

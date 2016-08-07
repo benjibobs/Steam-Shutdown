@@ -72,6 +72,9 @@ namespace Steam_Shutdown
                 case -2:
                     psi = new ProcessStartInfo("rundll32", "powrprof.dll,SetSuspendState 0,1,0");
                     break;
+                case -3:
+                    psi = new ProcessStartInfo("rundll32", "powrprof.dll,SetSuspendState");
+                    break;
                 default:
                     psi = new ProcessStartInfo("shutdown", "/s /t 0");
                     break;
@@ -141,6 +144,17 @@ namespace Steam_Shutdown
                     Console.ForegroundColor = ConsoleColor.White;
 
                     return -2;
+
+                } else if (input.ToLower() == "hibernate" && !modeChosen)
+                {
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine();
+                    centerConsoleLine("Hibernate mode activated! You will now have to choose an actual interval.");
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    return -3;
 
                 }
 

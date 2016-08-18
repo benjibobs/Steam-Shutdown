@@ -4,11 +4,16 @@ using Microsoft.Win32;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.IO;
 
 namespace Steam_Shutdown
 {
     class SShutdown
     {
+
+        static string installLoc = "~/.steam/steam/SteamApps/common";
+
+        static long fileSize = 1;
 
         static void Main(string[] args)
         {
@@ -38,6 +43,11 @@ namespace Steam_Shutdown
             centerConsoleLine("This detects when Steam has finished downloading your stuff using the registry.");
             centerConsoleLine("It will shut down your computer when the download(s) are complete.\n");
 
+            if (isMono())
+            {
+                selectLibrary();
+            }
+
             while (interval < 1) //mode has been chosen
             {
                 interval = getIntervalOrMode();
@@ -64,8 +74,12 @@ namespace Steam_Shutdown
 
             RegistryKey steamBase = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\");
 
-            isDownloading_First(steamBase); //check if any app is actually being updated
+            if (!isMono())
+            {
 
+                isDownloading_First(steamBase); //check if any app is actually being updated
+
+            }
             while (updateCheck(steamBase))
             {
                 centerConsoleLine("\n> Steam is downloading something! Sleeping for " + interval + " seconds...");
@@ -102,6 +116,22 @@ namespace Steam_Shutdown
             psi.CreateNoWindow = true; //prevent popup
             psi.UseShellExecute = false;
             Process.Start(psi);
+
+        }
+
+        static void selectLibrary()
+        {
+
+            Console.Write("> Steam library location (default is \"~/.steam/steam/SteamApps/common\", press enter for default): ");
+
+            string library = Console.ReadLine().Replace("> Steam library location (default is \"~/.steam/steam/SteamApps/common\": ", ""); //TODO: Better implementation
+
+            if (String.IsNullOrEmpty(library.Trim()))
+            {
+                library = "~/.steam/steam/SteamApps/common";
+            }
+
+            installLoc = library;
 
         }
 
@@ -223,6 +253,23 @@ namespace Steam_Shutdown
             }
             else
             {
+
+                DirectoryInfo DirInfo = new DirectoryInfo(installLoc);
+
+                long newFS = 0;
+
+                foreach (FileInfo fi in DirInfo.EnumerateFiles("*", SearchOption.AllDirectories))
+                {
+                   newFS = newFS + fi.Length;
+                }
+
+                if (newFS == fileSize)
+                {
+                    return false;
+                }
+
+                fileSize = newFS;
+
                 return true;
             }
         }

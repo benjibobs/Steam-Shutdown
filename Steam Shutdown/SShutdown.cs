@@ -98,26 +98,26 @@ namespace Steam_Shutdown
             switch (mode)
             {
                 case -1: //reboot
-                    string rebootCmd = isMono() ? "/sbin/sudo" : "shutdown";
-                    string rebootArgs = isMono() ? "/sbin/reboot -f" : "/r /t 0";
+                    string rebootCmd = isUNIX() ? "/sbin/sudo" : "shutdown";
+                    string rebootArgs = isUNIX() ? "/sbin/reboot -f" : "/r /t 0";
                     psi = new ProcessStartInfo(rebootCmd, rebootArgs);
                     break;
                 case -2: //sleep
-                    string sleepCmd = isMono() ? "/sbin/sudo" : "rundll32";
-                    string sleepArgs = isMono() ? "pm-suspend" : "powrprof.dll,SetSuspendState 0,1,0";
+                    string sleepCmd = isUNIX() ? "/sbin/sudo" : "rundll32";
+                    string sleepArgs = isUNIX() ? "pm-suspend" : "powrprof.dll,SetSuspendState 0,1,0";
                     psi = new ProcessStartInfo(sleepCmd, sleepArgs); //may not work on some systems (sends into a kind of hibernation)
                     break;
                 case -3: //hibernate
-                    string hibCmd = isMono() ? "/sbin/sudo" : "rundll32";
-                    string hibArgs = isMono() ? "pm-hibernate" : "powrprof.dll,SetSuspendState";
+                    string hibCmd = isUNIX() ? "/sbin/sudo" : "rundll32";
+                    string hibArgs = isUNIX() ? "pm-hibernate" : "powrprof.dll,SetSuspendState";
                     psi = new ProcessStartInfo(hibCmd, hibArgs);
                     break;
                 case -4: //custom
                     psi = new ProcessStartInfo(customCmd[0], customCmd[1]);
                     break;
                 default: //uh oh.
-                    string shutdownCmd = isMono() ? "/sbin/sudo" : "shutdown";
-                    string shutdownArgs = isMono() ? "/sbin/shutdown -h now" : "/s /t 0";
+                    string shutdownCmd = isUNIX() ? "/sbin/sudo" : "shutdown";
+                    string shutdownArgs = isUNIX() ? "/sbin/shutdown -h now" : "/s /t 0";
                     psi = new ProcessStartInfo(shutdownCmd, shutdownArgs);
                     break;
             }
@@ -281,6 +281,12 @@ namespace Steam_Shutdown
 
                 return true;
             }
+        }
+
+        static bool isUNIX()
+        {
+            int p = (int)Environment.OSVersion.Platform;
+            return ((p == 4) || (p == 6) || (p == 128)) ;
         }
 
     }

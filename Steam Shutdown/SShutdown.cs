@@ -12,6 +12,15 @@ namespace Steam_Shutdown
 
         static void Main(string[] args)
         {
+
+            if (isMono())
+            {
+
+                doMono();
+                return;
+
+            }
+
             string version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
             int interval = 0;
             string title = "Steam Auto Shutdown - version " + version;
@@ -99,6 +108,11 @@ namespace Steam_Shutdown
 
         }
 
+        private static void doMono()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         ///   Prints a centered message to Console
         ///   </summary>
@@ -128,6 +142,11 @@ namespace Steam_Shutdown
 
                 return;
             }
+        }
+
+        static bool isMono()
+        {
+            return Type.GetType("Mono.Runtime") != null;
         }
 
         /// <summary>

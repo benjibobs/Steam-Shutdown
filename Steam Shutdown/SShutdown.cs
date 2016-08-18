@@ -13,14 +13,6 @@ namespace Steam_Shutdown
         static void Main(string[] args)
         {
 
-            if (isMono())
-            {
-
-                doMono();
-                return;
-
-            }
-
             string version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
             int interval = 0;
             string title = "Steam Auto Shutdown - version " + version;
@@ -29,7 +21,12 @@ namespace Steam_Shutdown
 
             Console.Title = title;
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WindowWidth += 30;
+
+            if (!isMono())
+            {
+
+                Console.WindowWidth += 30;
+            }
 
             Console.WriteLine();
             centerConsoleLine(title);
@@ -106,11 +103,6 @@ namespace Steam_Shutdown
             psi.UseShellExecute = false;
             Process.Start(psi);
 
-        }
-
-        private static void doMono()
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -211,21 +203,28 @@ namespace Steam_Shutdown
         static bool updateCheck(RegistryKey key)
         {
 
-            /* http://stackoverflow.com/a/2915990/5893567 */
-            foreach (string sub in key.GetSubKeyNames())
+            if (!isMono())
             {
-                RegistryKey local = Registry.Users;
-                local = key.OpenSubKey(sub, true);
-
-                object updating = local.GetValue("Updating");
-                if (updating != null && (int)updating == 1)
+                /* http://stackoverflow.com/a/2915990/5893567 */
+                foreach (string sub in key.GetSubKeyNames())
                 {
-                    return true;
+                    RegistryKey local = Registry.Users;
+                    local = key.OpenSubKey(sub, true);
+
+                    object updating = local.GetValue("Updating");
+                    if (updating != null && (int)updating == 1)
+                    {
+                        return true;
+                    }
+
                 }
 
+                return false;
             }
-
-            return false;
+            else
+            {
+                return true;
+            }
         }
 
     }

@@ -1,0 +1,6 @@
+{
+  "name": "Steam Shutdown",
+  "tagline": "A simple and lightweight program that will shutdown your PC after Steam has finished all of its downloads",
+  "body": "# Steam-Shutdown\r\nA simple and lightweight program that will shutdown your PC after Steam has finished all of its downloads\r\n\r\n# How to use\r\nEnter your interval or mode (shutdown, reboot, sleep, hibernate or custom), and the program will do the rest.\r\n\r\n# Contributors\r\n[benjibobs](https://github.com/benjibobs)\r\n\r\n[Casper BL](https://github.com/Ezzpify)\r\n\r\n[/u/NoRoom4Smarts](https://www.reddit.com/user/NoRoom4Smarts) - Icon creator\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}

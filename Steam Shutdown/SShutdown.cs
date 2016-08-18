@@ -44,7 +44,7 @@ namespace Steam_Shutdown
             centerConsoleLine("It will shut down your computer when the download(s) are complete.\n");
             centerConsoleLine("THIS PROGRAM REQUIRES ADMIN/SUDO ACCESS\n");
 
-            if (isMono())
+            if (isMono() && isUNIX())
             {
                 selectLibrary();
             }
@@ -75,7 +75,7 @@ namespace Steam_Shutdown
 
             RegistryKey steamBase = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\");
 
-            if (!isMono())
+            if (!isMono() && !isUNIX())
             {
 
                 isDownloading_First(steamBase); //check if any app is actually being updated
@@ -128,6 +128,9 @@ namespace Steam_Shutdown
 
         }
 
+        /// <summary>
+        ///   Sets the Steam Library for UNIX
+        ///   </summary>
         static void selectLibrary()
         {
 
@@ -175,6 +178,10 @@ namespace Steam_Shutdown
             }
         }
 
+        /// <summary>
+        ///   Checks if any subkey has the value Updating
+        ///   </summary>
+        ///   <returns>Returns true if running on Mono</returns>
         static bool isMono()
         {
             return Type.GetType("Mono.Runtime") != null;
@@ -242,7 +249,7 @@ namespace Steam_Shutdown
         static bool updateCheck(RegistryKey key)
         {
 
-            if (!isMono())
+            if (!isMono() && !isUNIX())
             {
                 /* http://stackoverflow.com/a/2915990/5893567 */
                 foreach (string sub in key.GetSubKeyNames())
@@ -283,6 +290,10 @@ namespace Steam_Shutdown
             }
         }
 
+        /// <summary>
+        ///   Checks if any subkey has the value Updating
+        ///   </summary>
+        ///   <returns>Returns true if running on UNIX system</returns>
         static bool isUNIX()
         {
             int p = (int)Environment.OSVersion.Platform;

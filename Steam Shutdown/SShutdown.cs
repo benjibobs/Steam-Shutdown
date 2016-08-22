@@ -267,22 +267,30 @@ namespace Steam_Shutdown
             }
             else
             {
-
-                DirectoryInfo DirInfo = new DirectoryInfo(installLoc);
-
-                long newFS = 0;
-
-                foreach (FileInfo fi in DirInfo.EnumerateFiles("*", SearchOption.AllDirectories))
+                try
                 {
-                   newFS = newFS + fi.Length;
+                    DirectoryInfo DirInfo = new DirectoryInfo(installLoc);
+
+                    long newFS = 0;
+
+                    foreach (FileInfo fi in DirInfo.EnumerateFiles("*", SearchOption.AllDirectories))
+                    {
+                        newFS = newFS + fi.Length;
+                    }
+
+                    if (newFS == fileSize)
+                    {
+                        return false;
+                    }
+
+                    fileSize = newFS;
                 }
-
-                if (newFS == fileSize)
+                catch (Exception e)
                 {
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    centerConsoleLine("An error occured.");
                     return false;
                 }
-
-                fileSize = newFS;
 
                 return true;
             }

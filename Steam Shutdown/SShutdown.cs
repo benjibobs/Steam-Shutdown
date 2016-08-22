@@ -27,9 +27,8 @@ namespace Steam_Shutdown
             Console.Title = title;
             Console.ForegroundColor = ConsoleColor.Green;
 
-            if (!isMono())
+            if (!isMono()) //TODO: Fix crash specificallt with mono
             {
-
                 Console.WindowWidth += 30;
             }
 
@@ -44,7 +43,7 @@ namespace Steam_Shutdown
             centerConsoleLine("It will shut down your computer when the download(s) are complete.\n");
             centerConsoleLine("THIS PROGRAM REQUIRES ADMIN/SUDO ACCESS\n");
 
-            if (isMono() && isUNIX())
+            if (isUNIX())
             {
                 selectLibrary();
             }
@@ -75,9 +74,8 @@ namespace Steam_Shutdown
 
             RegistryKey steamBase = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\");
 
-            if (!isMono() && !isUNIX())
+            if (!isUNIX())
             {
-
                 isDownloading_First(steamBase); //check if any app is actually being updated
 
             }
@@ -249,7 +247,7 @@ namespace Steam_Shutdown
         static bool updateCheck(RegistryKey key)
         {
 
-            if (!isMono() && !isUNIX())
+            if (!isUNIX())
             {
                 /* http://stackoverflow.com/a/2915990/5893567 */
                 foreach (string sub in key.GetSubKeyNames())

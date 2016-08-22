@@ -27,7 +27,7 @@ namespace Steam_Shutdown
             Console.Title = title;
             Console.ForegroundColor = ConsoleColor.Green;
 
-            if (!isMono()) //TODO: Fix crash specificallt with mono
+            if (!isMono()) //TODO: Fix crash specifically with mono
             {
                 Console.WindowWidth += 30;
             }

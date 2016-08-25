@@ -96,17 +96,17 @@ namespace Steam_Shutdown
             switch (mode)
             {
                 case -1: //reboot
-                    string rebootCmd = isUNIX() ? "/sbin/sudo" : "shutdown";
+                    string rebootCmd = isUNIX() ? "/usr/bin/sudo" : "shutdown";
                     string rebootArgs = isUNIX() ? "/sbin/reboot -f" : "/r /t 0";
                     psi = new ProcessStartInfo(rebootCmd, rebootArgs);
                     break;
                 case -2: //sleep
-                    string sleepCmd = isUNIX() ? "/sbin/sudo" : "rundll32";
+                    string sleepCmd = isUNIX() ? "/usr/bin/sudo" : "rundll32";
                     string sleepArgs = isUNIX() ? "pm-suspend" : "powrprof.dll,SetSuspendState 0,1,0";
                     psi = new ProcessStartInfo(sleepCmd, sleepArgs); //may not work on some systems (sends into a kind of hibernation)
                     break;
                 case -3: //hibernate
-                    string hibCmd = isUNIX() ? "/sbin/sudo" : "rundll32";
+                    string hibCmd = isUNIX() ? "/usr/bin/sudo" : "rundll32";
                     string hibArgs = isUNIX() ? "pm-hibernate" : "powrprof.dll,SetSuspendState";
                     psi = new ProcessStartInfo(hibCmd, hibArgs);
                     break;
@@ -114,7 +114,7 @@ namespace Steam_Shutdown
                     psi = new ProcessStartInfo(customCmd[0], customCmd[1]);
                     break;
                 default: //uh oh.
-                    string shutdownCmd = isUNIX() ? "/sbin/sudo" : "shutdown";
+                    string shutdownCmd = isUNIX() ? "/usr/bin/sudo" : "shutdown";
                     string shutdownArgs = isUNIX() ? "/sbin/shutdown -h now" : "/s /t 0";
                     psi = new ProcessStartInfo(shutdownCmd, shutdownArgs);
                     break;

@@ -12,6 +12,7 @@ namespace Steam_Shutdown
     {
 
         static string installLoc = "~/.steam/steam/SteamApps/common";
+        static string sudoLoc = "/usr/bin/sudo";
 
         static long fileSize = 1;
 
@@ -45,7 +46,7 @@ namespace Steam_Shutdown
 
             if (isUNIX())
             {
-                selectLibrary();
+                selectPaths();
             }
 
             while (interval < 1) //mode has been chosen
@@ -102,7 +103,7 @@ namespace Steam_Shutdown
                     break;
                 case -2: //sleep
                     string sleepCmd = isUNIX() ? "/usr/bin/sudo" : "rundll32";
-                    string sleepArgs = isUNIX() ? "pm-suspend" : "powrprof.dll,SetSuspendState 0,1,0";
+                    string sleepArgs = isUNIX() ? "pm-suspend" : "powrprof.dll,SetSuspendState 0,1,0"; //TODO: Better than pm
                     psi = new ProcessStartInfo(sleepCmd, sleepArgs); //may not work on some systems (sends into a kind of hibernation)
                     break;
                 case -3: //hibernate
@@ -129,19 +130,26 @@ namespace Steam_Shutdown
         /// <summary>
         ///   Sets the Steam Library for UNIX
         ///   </summary>
-        static void selectLibrary()
+        static void selectPaths()
         {
 
             Console.Write("> Steam library location (default is \"~/.steam/steam/SteamApps/common\", press enter for default): ");
 
-            string library = Console.ReadLine().Replace("> Steam library location (default is \"~/.steam/steam/SteamApps/common\": ", ""); //TODO: Better implementation
+            string library = Console.ReadLine().Replace("> Steam library location (default is \"~/.steam/steam/SteamApps/common\", press enter for default): ", ""); //TODO: Better implementation
 
-            if (String.IsNullOrEmpty(library.Trim()))
+            if (!String.IsNullOrEmpty(library.Trim()))
             {
-                library = "~/.steam/steam/SteamApps/common";
+                installLoc = library;
             }
 
-            installLoc = library;
+            Console.Write("> Sudo location (default is \"/usr/bin/sudo\", press enter for default): ");
+
+            string sudo = Console.ReadLine().Replace("> Sudo location (default is \"/usr/bin/sudo\", press enter for default): ", ""); //TODO: Better implementation
+
+            if (!String.IsNullOrEmpty(sudo.Trim()))
+            {
+                sudoLoc = sudo;
+            }
 
         }
 

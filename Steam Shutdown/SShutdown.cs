@@ -97,26 +97,26 @@ namespace Steam_Shutdown
             switch (mode)
             {
                 case -1: //reboot
-                    string rebootCmd = isUNIX() ? "/usr/bin/sudo" : "shutdown";
-                    string rebootArgs = isUNIX() ? "/sbin/reboot -f" : "/r /t 0";
+                    string rebootCmd = isUNIX() ? sudoLoc : "shutdown";
+                    string rebootArgs = isUNIX() ? "shutdown -r now" : "/r /t 0";
                     psi = new ProcessStartInfo(rebootCmd, rebootArgs);
                     break;
                 case -2: //sleep
-                    string sleepCmd = isUNIX() ? "/usr/bin/sudo" : "rundll32";
-                    string sleepArgs = isUNIX() ? "pm-suspend" : "powrprof.dll,SetSuspendState 0,1,0"; //TODO: Better than pm
+                    string sleepCmd = isUNIX() ? sudoLoc : "rundll32";
+                    string sleepArgs = isUNIX() ? "shutdown -s now" : "powrprof.dll,SetSuspendState 0,1,0"; //TODO: Better than pm
                     psi = new ProcessStartInfo(sleepCmd, sleepArgs); //may not work on some systems (sends into a kind of hibernation)
                     break;
                 case -3: //hibernate
-                    string hibCmd = isUNIX() ? "/usr/bin/sudo" : "rundll32";
-                    string hibArgs = isUNIX() ? "pm-hibernate" : "powrprof.dll,SetSuspendState";
+                    string hibCmd = isUNIX() ? sudoLoc : "rundll32";
+                    string hibArgs = isUNIX() ? "shutdown -s now" : "powrprof.dll,SetSuspendState";
                     psi = new ProcessStartInfo(hibCmd, hibArgs);
                     break;
                 case -4: //custom
                     psi = new ProcessStartInfo(customCmd[0], customCmd[1]);
                     break;
                 default: //uh oh.
-                    string shutdownCmd = isUNIX() ? "/usr/bin/sudo" : "shutdown";
-                    string shutdownArgs = isUNIX() ? "/sbin/shutdown -h now" : "/s /t 0";
+                    string shutdownCmd = isUNIX() ? sudoLoc : "shutdown";
+                    string shutdownArgs = isUNIX() ? "shutdown -h now" : "/s /t 0";
                     psi = new ProcessStartInfo(shutdownCmd, shutdownArgs);
                     break;
             }
@@ -142,9 +142,9 @@ namespace Steam_Shutdown
                 installLoc = library;
             }
 
-            Console.Write("> Sudo location (default is \"/usr/bin/sudo\", press enter for default): ");
+            Console.Write("> Sudo location (default is \"/usr/bin/sudo\", press enter for default - try \"which sudo\"): ");
 
-            string sudo = Console.ReadLine().Replace("> Sudo location (default is \"/usr/bin/sudo\", press enter for default): ", ""); //TODO: Better implementation
+            string sudo = Console.ReadLine().Replace("> Sudo location (default is \"/usr/bin/sudo\", press enter for default - try \"which sudo\"): ", ""); //TODO: Better implementation
 
             if (!String.IsNullOrEmpty(sudo.Trim()))
             {

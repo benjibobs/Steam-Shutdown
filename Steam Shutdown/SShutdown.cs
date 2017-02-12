@@ -11,10 +11,12 @@ namespace Steam_Shutdown
     class SShutdown
     {
 
-        static string installLoc = "~/.steam/steam/SteamApps/common";
+		static string installLoc = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/.steam/steam/steamapps/common";
         static string sudoLoc = "/usr/bin/sudo";
 
         static long fileSize = 1;
+
+		static ConsoleColor orig;
 
         static void Main(string[] args)
         {
@@ -24,6 +26,10 @@ namespace Steam_Shutdown
             string title = "Steam Auto Shutdown - version " + version;
             int mode = 0;
             string[] customCmd = {"", "" };
+
+			Console.BackgroundColor = ConsoleColor.Black;
+
+			orig = Console.ForegroundColor;
 
             Console.Title = title;
             Console.ForegroundColor = ConsoleColor.Green;
@@ -38,7 +44,7 @@ namespace Steam_Shutdown
             Console.ForegroundColor = ConsoleColor.Cyan;
             centerConsoleLine("https://github.com/benjibobs/Steam-Shutdown\n");
 
-            Console.ForegroundColor = ConsoleColor.White;
+			Console.ForegroundColor = orig;
 
             centerConsoleLine("This detects when Steam has finished downloading your stuff using the registry.");
             centerConsoleLine("It will shut down your computer when the download(s) are complete.\n");
@@ -97,26 +103,26 @@ namespace Steam_Shutdown
             switch (mode)
             {
                 case -1: //reboot
-                    string rebootCmd = isUNIX() ? sudoLoc : "shutdown";
-                    string rebootArgs = isUNIX() ? "shutdown -r now" : "/r /t 0";
+					string rebootCmd = isUNIX() ? "shutdown" : "shutdown";
+                    string rebootArgs = isUNIX() ? "-r now" : "/r /t 0";
                     psi = new ProcessStartInfo(rebootCmd, rebootArgs);
                     break;
                 case -2: //sleep
-                    string sleepCmd = isUNIX() ? sudoLoc : "rundll32";
-                    string sleepArgs = isUNIX() ? "shutdown -s now" : "powrprof.dll,SetSuspendState 0,1,0"; //TODO: Better than pm
+					string sleepCmd = isUNIX() ? "shutdown" : "rundll32";
+                    string sleepArgs = isUNIX() ? "-s now" : "powrprof.dll,SetSuspendState 0,1,0"; //TODO: Better than pm
                     psi = new ProcessStartInfo(sleepCmd, sleepArgs); //may not work on some systems (sends into a kind of hibernation)
                     break;
                 case -3: //hibernate
-                    string hibCmd = isUNIX() ? sudoLoc : "rundll32";
-                    string hibArgs = isUNIX() ? "shutdown -s now" : "powrprof.dll,SetSuspendState";
+					string hibCmd = isUNIX() ? "shutdown" : "rundll32";
+                    string hibArgs = isUNIX() ? "-s now" : "powrprof.dll,SetSuspendState";
                     psi = new ProcessStartInfo(hibCmd, hibArgs);
                     break;
                 case -4: //custom
                     psi = new ProcessStartInfo(customCmd[0], customCmd[1]);
                     break;
                 default: //uh oh.
-                    string shutdownCmd = isUNIX() ? sudoLoc : "shutdown";
-                    string shutdownArgs = isUNIX() ? "shutdown -h now" : "/s /t 0";
+                    string shutdownCmd = /*isUNIX() ? sudoLoc :*/ "shutdown";
+                    string shutdownArgs = isUNIX() ? "-h now" : "/s /t 0";
                     psi = new ProcessStartInfo(shutdownCmd, shutdownArgs);
                     break;
             }
@@ -133,9 +139,12 @@ namespace Steam_Shutdown
         static void selectPaths()
         {
 
-            Console.Write("> Steam library location (default is \"~/.steam/steam/SteamApps/common\", press enter for default): ");
 
-            string library = Console.ReadLine().Replace("> Steam library location (default is \"~/.steam/steam/SteamApps/common\", press enter for default): ", ""); //TODO: Better implementation
+			Console.Write("> Steam library location (default is \""+installLoc+"\", press enter for default): ");
+
+			string library = Console.ReadLine().Replace("> Steam library location (default is \""+installLoc+"\", press enter for default): ", ""); //TODO: Better implementation
+
+			library = library.Replace ("~", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)); //sigh...
 
             if (!String.IsNullOrEmpty(library.Trim()))
             {
@@ -144,12 +153,12 @@ namespace Steam_Shutdown
 
             Console.Write("> Sudo location (default is \"/usr/bin/sudo\", press enter for default - try \"which sudo\"): ");
 
-            string sudo = Console.ReadLine().Replace("> Sudo location (default is \"/usr/bin/sudo\", press enter for default - try \"which sudo\"): ", ""); //TODO: Better implementation
+            /*string sudo = Console.ReadLine().Replace("> Sudo location (default is \"/usr/bin/sudo\", press enter for default - try \"which sudo\"): ", ""); //TODO: Better implementation
 
             if (!String.IsNullOrEmpty(sudo.Trim()))
             {
                 sudoLoc = sudo;
-            }
+            }*/
 
         }
 
@@ -237,7 +246,7 @@ namespace Steam_Shutdown
                 Console.WriteLine();
                 centerConsoleLine("That is not a valid interval!");
                 Console.WriteLine();
-                Console.ForegroundColor = ConsoleColor.White;
+				Console.ForegroundColor = orig;
                 return getIntervalOrMode();
 
             }
@@ -296,7 +305,7 @@ namespace Steam_Shutdown
                 catch (Exception e)
                 {
                     Console.ForegroundColor = ConsoleColor.DarkRed;
-                    centerConsoleLine("An error occured.");
+					centerConsoleLine("An error occured: " + e.Message);
                     return false;
                 }
 

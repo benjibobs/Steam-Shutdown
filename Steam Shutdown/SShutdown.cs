@@ -5,13 +5,14 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.IO;
+using System.Text;
 
 namespace Steam_Shutdown
 {
     class SShutdown
     {
 
-		static string installLoc = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/.steam/steam/steamapps/common";
+		static string installLoc = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/.steam/steam/steamapps";
         static string sudoLoc = "/usr/bin/sudo";
 
         static long fileSize = 1;
@@ -151,9 +152,9 @@ namespace Steam_Shutdown
                 installLoc = library;
             }
 
-            Console.Write("> Sudo location (default is \"/usr/bin/sudo\", press enter for default - try \"which sudo\"): ");
+			/*Console.Write("> Sudo location (default is \"/usr/bin/sudo\", press enter for default - try \"which sudo\"): ");
 
-            /*string sudo = Console.ReadLine().Replace("> Sudo location (default is \"/usr/bin/sudo\", press enter for default - try \"which sudo\"): ", ""); //TODO: Better implementation
+            string sudo = Console.ReadLine().Replace("> Sudo location (default is \"/usr/bin/sudo\", press enter for default - try \"which sudo\"): ", ""); //TODO: Better implementation
 
             if (!String.IsNullOrEmpty(sudo.Trim()))
             {
@@ -286,21 +287,29 @@ namespace Steam_Shutdown
             {
                 try
                 {
-                    DirectoryInfo DirInfo = new DirectoryInfo(installLoc);
+					DirectoryInfo dirInfo = new DirectoryInfo(installLoc + "");
 
-                    long newFS = 0;
-
-                    foreach (FileInfo fi in DirInfo.EnumerateFiles("*", SearchOption.AllDirectories))
+					foreach (var fi in dirInfo.EnumerateFiles("*", SearchOption.TopDirectoryOnly))
                     {
-                        newFS = newFS + fi.Length;
-                    }
+						if(fi.Name.ToLower().StartsWith("appmanifest"))
+						{
+							string contents;
+							FileStream stream = fi.Open(FileMode.Open);
+							using (var streamReader = new StreamReader(stream, Encoding.UTF8))
+							{
+								contents = streamReader.ReadToEnd();
+							}
 
-                    if (newFS == fileSize)
-                    {
-                        return false;
-                    }
+							if(contents.Replace(" ", "").Split(new string[]{"StateFlags\""}, StringSplitOptions.None)[1].Split('"')[1].Split('"')[0] == "1026") //fucks sake steam
+							{
+								return true;
+							}
 
-                    fileSize = newFS;
+						} //6439838816
+					}
+
+					return false;
+
                 }
                 catch (Exception e)
                 {
@@ -308,8 +317,7 @@ namespace Steam_Shutdown
 					centerConsoleLine("An error occured: " + e.Message);
                     return false;
                 }
-
-                return true;
+					
             }
         }
 

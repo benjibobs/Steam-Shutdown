@@ -12,10 +12,7 @@ namespace Steam_Shutdown
     class SShutdown
     {
 
-		static string installLoc = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/.steam/steam/steamapps";
-        static string sudoLoc = "/usr/bin/sudo";
-
-        static long fileSize = 1;
+		static string installLoc = "/home/USERNAME/.steam/steam/steamapps";
 
 		static ConsoleColor orig;
 
@@ -47,14 +44,17 @@ namespace Steam_Shutdown
 
 			Console.ForegroundColor = orig;
 
-            centerConsoleLine("This detects when Steam has finished downloading your stuff using the registry.");
-            centerConsoleLine("It will shut down your computer when the download(s) are complete.\n");
-            centerConsoleLine("THIS PROGRAM REQUIRES ADMIN/SUDO ACCESS\n");
-
-            if (isUNIX())
-            {
-                selectPaths();
-            }
+			if (isUNIX ()) {
+				centerConsoleLine("ENSURE THIS PROGRAM IS RUN WITH SUDO\n");
+				centerConsoleLine("This detects when Steam has finished downloading your stuff using app manifests.");
+				centerConsoleLine("It will detect when the download(s) are complete.\n");
+				centerConsoleLine ("Note: Sleep/hibernate on linux will halt the system.\n");
+				selectPaths ();
+			} else {
+				centerConsoleLine("ENSURE THIS PROGRAM IS RUN AS ADMINISTRATOR\n");
+				centerConsoleLine("This detects when Steam has finished downloading your stuff using the registry.");
+				centerConsoleLine("It will detect when the download(s) are complete.\n");
+			}
 
             while (interval < 1) //mode has been chosen
             {
@@ -110,12 +110,12 @@ namespace Steam_Shutdown
                     break;
                 case -2: //sleep
 					string sleepCmd = isUNIX() ? "shutdown" : "rundll32";
-                    string sleepArgs = isUNIX() ? "-s now" : "powrprof.dll,SetSuspendState 0,1,0"; //TODO: Better than pm
+                    string sleepArgs = isUNIX() ? "-H now" : "powrprof.dll,SetSuspendState 0,1,0"; //TODO: Better than pm
                     psi = new ProcessStartInfo(sleepCmd, sleepArgs); //may not work on some systems (sends into a kind of hibernation)
                     break;
                 case -3: //hibernate
 					string hibCmd = isUNIX() ? "shutdown" : "rundll32";
-                    string hibArgs = isUNIX() ? "-s now" : "powrprof.dll,SetSuspendState";
+                    string hibArgs = isUNIX() ? "-H now" : "powrprof.dll,SetSuspendState";
                     psi = new ProcessStartInfo(hibCmd, hibArgs);
                     break;
                 case -4: //custom
@@ -123,7 +123,7 @@ namespace Steam_Shutdown
                     break;
                 default: //uh oh.
                     string shutdownCmd = /*isUNIX() ? sudoLoc :*/ "shutdown";
-                    string shutdownArgs = isUNIX() ? "-h now" : "/s /t 0";
+                    string shutdownArgs = isUNIX() ? " now" : "/s /t 0";
                     psi = new ProcessStartInfo(shutdownCmd, shutdownArgs);
                     break;
             }
@@ -141,25 +141,22 @@ namespace Steam_Shutdown
         {
 
 
-			Console.Write("> Steam library location (default is \""+installLoc+"\", press enter for default): ");
+			Console.Write("> Steam library location (usually \""+installLoc+"\"): ");
 
-			string library = Console.ReadLine().Replace("> Steam library location (default is \""+installLoc+"\", press enter for default): ", ""); //TODO: Better implementation
+			string library = Console.ReadLine().Replace("> Steam library location (usually \""+installLoc+"\"): ", ""); //TODO: Better implementation
 
-			library = library.Replace ("~", Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)); //sigh...
-
-            if (!String.IsNullOrEmpty(library.Trim()))
+            if (String.IsNullOrEmpty(library.Trim()))
             {
-                installLoc = library;
+				Console.WriteLine ();
+				Console.ForegroundColor = ConsoleColor.DarkRed;
+				centerConsoleLine ("You must enter a library location.");
+				Console.WriteLine ();
+				Console.ForegroundColor = orig;
+				selectPaths ();
+				return;
             }
 
-			/*Console.Write("> Sudo location (default is \"/usr/bin/sudo\", press enter for default - try \"which sudo\"): ");
-
-            string sudo = Console.ReadLine().Replace("> Sudo location (default is \"/usr/bin/sudo\", press enter for default - try \"which sudo\"): ", ""); //TODO: Better implementation
-
-            if (!String.IsNullOrEmpty(sudo.Trim()))
-            {
-                sudoLoc = sudo;
-            }*/
+			installLoc = library;
 
         }
 
@@ -195,7 +192,7 @@ namespace Steam_Shutdown
         }
 
         /// <summary>
-        ///   Checks if any subkey has the value Updating
+        ///   Checks if you are running on Mono
         ///   </summary>
         ///   <returns>Returns true if running on Mono</returns>
         static bool isMono()
@@ -258,7 +255,7 @@ namespace Steam_Shutdown
         }
 
         /// <summary>
-        ///   Checks if any subkey has the value Updating
+        ///   Checks if any subkey has the value Updating, or does shitty linux stuff
         ///   </summary>
         ///   <param name="key">Steam registry key base</param>
         ///   <returns>Returns true if something is updating</returns>
@@ -300,12 +297,12 @@ namespace Steam_Shutdown
 								contents = streamReader.ReadToEnd();
 							}
 
-							if(contents.Replace(" ", "").Split(new string[]{"StateFlags\""}, StringSplitOptions.None)[1].Split('"')[1].Split('"')[0] == "1026") //fucks sake steam
+							if(contents.Replace(" ", "").Split(new string[]{"StateFlags\""}, StringSplitOptions.None)[1].Split('"')[1].Split('"')[0] == "1026") //Updating (2) + Update downloading (1024)
 							{
 								return true;
 							}
 
-						} //6439838816
+						}
 					}
 
 					return false;
@@ -327,8 +324,8 @@ namespace Steam_Shutdown
         ///   <returns>Returns true if running on UNIX system</returns>
         static bool isUNIX()
         {
-            int p = (int)Environment.OSVersion.Platform;
-            return ((p == 4) || (p == 6) || (p == 128)) ;
+            int platform = (int)Environment.OSVersion.Platform;
+			return ((platform == 4) || (platform == 6) || (platform == 128)) ;
         }
 
     }

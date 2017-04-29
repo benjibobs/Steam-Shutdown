@@ -1,2 +1,2 @@
 language: csharp
-solution: "Steam Shutdown.sln"
+solution: Steam\ Shutdown.sln

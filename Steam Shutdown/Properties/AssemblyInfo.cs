@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("benjibobs")]
 [assembly: AssemblyProduct("Steam Shutdown")]
-[assembly: AssemblyCopyright("Copyright © benjibobs 2016")]
+[assembly: AssemblyCopyright("Copyright © benjibobs 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

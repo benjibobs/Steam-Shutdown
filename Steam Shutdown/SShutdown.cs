@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using Microsoft.Win32;
 using System.Diagnostics;
@@ -82,11 +82,17 @@ namespace Steam_Shutdown
 
             RegistryKey steamBase = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\");
 
-            if (!isUNIX())
+            while (!updateCheck(key) && !isUNIX()) //check if any app is actually being updated
             {
-                isDownloading_First(steamBase); //check if any app is actually being updated
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.Red;
+                centerConsoleLine("No updates or downloads detected.");
+                centerConsoleLine("Start the download/update and press ENTER to try again");
+                Console.ReadLine();
+                Console.ForegroundColor = ConsoleColor.White;
+            }                
 
-            }
+
             while (updateCheck(steamBase))
             {
                 centerConsoleLine("\n> Steam is downloading something! Sleeping for " + interval + " seconds...");
@@ -168,27 +174,6 @@ namespace Steam_Shutdown
         {
             Console.SetCursorPosition((Console.WindowWidth - text.Length) / 2, Console.CursorTop);
             Console.WriteLine(text);
-        }
-
-        /// <summary>
-        ///   RecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursionRecursion
-        ///   </summary>
-        ///   <param name="key">Steam registry base key</param>
-        static void isDownloading_First(RegistryKey key)
-        {
-            if (!updateCheck(key))
-            {
-                Console.WriteLine();
-                Console.ForegroundColor = ConsoleColor.Red;
-                centerConsoleLine("No updates or downloads detected.");
-                centerConsoleLine("Start the download/update and press ENTER to try again");
-                Console.ReadLine();
-                Console.ForegroundColor = ConsoleColor.White;
-
-                isDownloading_First(key); //NOTE: Temporary workaround http://i.imgur.com/3eDjSGm.png
-
-                return;
-            }
         }
 
         /// <summary>

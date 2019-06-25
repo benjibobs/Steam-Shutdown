@@ -82,7 +82,7 @@ namespace Steam_Shutdown
 
             RegistryKey steamBase = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Default).OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\");
 
-            while (!updateCheck(key) && !isUNIX()) //check if any app is actually being updated
+            while (!updateCheck(steamBase) && !isUNIX()) //check if any app is actually being updated
             {
                 Console.WriteLine();
                 Console.ForegroundColor = ConsoleColor.Red;
